@@ -7,6 +7,11 @@ CommonConnectionPool& CommonConnectionPool::getConnectionPool()
 	return connPool;
 }
 
+shared_ptr<Connection> CommonConnectionPool::getConnection()
+{
+	return shared_ptr<Connection>();
+}
+
 CommonConnectionPool::CommonConnectionPool()
 {
 	if (!loadConfigFile())
@@ -24,6 +29,8 @@ CommonConnectionPool::CommonConnectionPool()
 	}
 
 	// 启动新的线程作为连接生产者
+
+	thread produce(std::bind(&CommonConnectionPool::produceConnectionTask, this));
 
 }
 
@@ -89,5 +96,27 @@ bool CommonConnectionPool::loadConfigFile()
 
 	}
 	return true;
+}
+
+void CommonConnectionPool::produceConnectionTask()
+{
+	for (;;)
+	{
+		unique_lock<mutex> lck(_queueMutex);
+		while (!_connectionQuque.empty())
+		{
+			cv.wait(lck);
+		}
+
+		// 创建新的连接
+		if (_connecionCnt < _maxSize)
+		{
+			Connection* conn = new Connection;
+			conn->connect(_ip, _port, _username, _password, _dbname);
+			_connectionQuque.push(conn);
+			_connecionCnt++;
+		}
+		cv.notify_all(); // 通知消费线程进行消费
+	}
 }
 

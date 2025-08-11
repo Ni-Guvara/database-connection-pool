@@ -12,7 +12,7 @@ int main()
     conn->connect("127.0.0.1", 3306, "root", "123456", "chat");
     conn->update(sql);*/
 
-    CommonConnectionPool::getConnectionPool().loadConfigFile();
+    //CommonConnectionPool::getConnectionPool().loadConfigFile();
     return 0;
     
 }

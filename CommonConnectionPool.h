@@ -3,16 +3,25 @@
 #include <string>
 #include <queue>
 #include <mutex>
+#include <memory>
+#include <functional>
 #include "Connection.h"
+using namespace std;
 
 class CommonConnectionPool
 {
 public:
 	static CommonConnectionPool& getConnectionPool();  // 单例模式-懒汉模式
-	bool loadConfigFile();
+	shared_ptr<Connection> getConnection();
+
+	
 
 private:
 	CommonConnectionPool();
+
+	bool loadConfigFile();
+
+	void produceConnectionTask();
 
 	string _ip;  // mysql ip地址
 	unsigned short _port; // mysql 端口号
@@ -28,5 +37,5 @@ private:
 	atomic_int _connecionCnt; // 记录创建的连接数量
 	queue<Connection*> _connectionQuque;
 	mutex _queueMutex;
-
+	condition_variable cv; // 生产线程-消费线程通信 设置条件变量
 };
