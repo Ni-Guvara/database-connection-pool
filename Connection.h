@@ -2,6 +2,7 @@
 
 #include<mysql.h>
 #include<string>
+#include<ctime>
 using namespace std;
 
 #include "public.h"
@@ -20,6 +21,10 @@ public:
 	bool update(string sql);
 	// 查询操作 select
 	MYSQL_RES* query(string sql);
+
+	void refreshtime();
+	clock_t getalivetime();
 private:
 	MYSQL* _conn; // 表示和Connection Server的一条连接
+	clock_t _alivetime;
 };

@@ -41,3 +41,14 @@ MYSQL_RES* Connection::query(string sql)
 	return mysql_use_result(_conn);
 }
 
+void Connection::refreshtime()
+{
+	_alivetime = clock();
+}
+
+clock_t Connection::getalivetime()
+{
+	clock_t alivetime = clock() - _alivetime;
+	return alivetime;
+}
+
