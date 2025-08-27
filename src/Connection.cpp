@@ -1,41 +1,46 @@
 #include "Connection.h"
-#pragma once
 
-// ³õÊ¼»¯Êı¾İ¿âÁ¬½Ó
 Connection::Connection()
 {
 	_conn = mysql_init(nullptr);
 }
-// ÊÍ·ÅÊı¾İ¿âÁ¬½Ó×ÊÔ´
+
 Connection::~Connection()
 {
 	if (_conn != nullptr)
 		mysql_close(_conn);
 }
-// Á¬½ÓÊı¾İ¿â
+
 bool Connection::connect(string ip, unsigned short port, string user, string password,
-	string dbname)
+						 string dbname)
 {
-	MYSQL* p = mysql_real_connect(_conn, ip.c_str(), user.c_str(),
-		password.c_str(), dbname.c_str(), port, nullptr, 0);
+	MYSQL *p = mysql_real_connect(_conn, ip.c_str(), user.c_str(),
+								  password.c_str(), dbname.c_str(), port, nullptr, 0);
+
+	if (p == nullptr)
+	{
+		// å…³é”®ï¼šæ‰“å°å…·ä½“é”™è¯¯
+		std::cout << "è¿æ¥å¤±è´¥: " << mysql_error(_conn) << std::endl;
+	}
+
 	return p != nullptr;
 }
-// ¸üĞÂ²Ù×÷ insert¡¢delete¡¢update
+
 bool Connection::update(string sql)
 {
 	if (mysql_query(_conn, sql.c_str()))
 	{
-		LOG("¸üĞÂÊ§°Ü:" + sql);
+		LOG("UPDATE FAIL:" + sql);
 		return false;
 	}
 	return true;
 }
-// ²éÑ¯²Ù×÷ select
-MYSQL_RES* Connection::query(string sql)
+
+MYSQL_RES *Connection::query(string sql)
 {
 	if (mysql_query(_conn, sql.c_str()))
 	{
-		LOG("²éÑ¯Ê§°Ü:" + sql);
+		LOG("UPDATE FAIL:" + sql);
 		return nullptr;
 	}
 	return mysql_use_result(_conn);
@@ -51,4 +56,3 @@ clock_t Connection::getalivetime()
 	clock_t alivetime = clock() - _alivetime;
 	return alivetime;
 }
-
